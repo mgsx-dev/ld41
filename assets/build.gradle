@@ -20,6 +20,33 @@ eclipse.project {
     name = appName + "-assets"
 }
 
+def assetsTasks = []
+
+/////////////////////// SKIN
+
+def assetsPrepareTasks = []
+
+assetsPrepareTasks << gdxHieroExport("src/skin/default.hiero", "$buildDir/skin")
+
+assetsPrepareTasks << gdxRawCopy("src/skin", "$buildDir/skin")
+
+// assetsPrepareTasks << inkscapeExport("src/skin/panel.9.svg", "$buildDir/skin")
+// assetsPrepareTasks << inkscapeExport("src/skin/bt-up.9.svg", "$buildDir/skin")
+// assetsPrepareTasks << inkscapeExport("src/skin/heart.svg", "$buildDir/skin")
+
+def packTask = gdxAtlasPack("$buildDir/skin", "../android/assets/skin/skin")
+
+packTask.dependsOn += assetsPrepareTasks
+
+assetsTasks << packTask
+
+
+
+///////////////////////////
+
+
+task generateAssets(dependsOn: assetsTasks, group: "gdx"){}
+
 /** usage example :
 
 task buildAssets(group: 'gdx'){}
