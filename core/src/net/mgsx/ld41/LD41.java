@@ -12,7 +12,7 @@ public class LD41 extends Game {
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	
-	public static final boolean debug = false;
+	public static final boolean debug = true;
 	
 	public static LD41 i(){
 		return (LD41)Gdx.app.getApplicationListener();

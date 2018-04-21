@@ -1,5 +1,7 @@
 package net.mgsx.ld41.parts;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 
 import net.mgsx.ld41.LD41;
+import net.mgsx.ld41.gfx.PixelDistoFX;
 import net.mgsx.ld41.logic.BlockController;
 import net.mgsx.ld41.logic.HeroController;
 import net.mgsx.ld41.utils.TiledMapLink;
@@ -19,6 +22,8 @@ public class GameWorld {
 
 	public static final float TILE_WIDTH = 32f;
 	public static final float TILE_HEIGHT = 32f;
+	
+	private boolean gfx = true;
 	
 	private TiledMapStream mapStream;
 	private OrthogonalTiledMapRenderer mapRenderer;
@@ -32,6 +37,8 @@ public class GameWorld {
 	
 	private boolean isOver;
 	private float overtime;
+	
+	private PixelDistoFX pixelDistoFX;
 	
 	public GameWorld() {
 		TiledMap mapBase = new TmxMapLoader().load("map.tmx");
@@ -55,6 +62,8 @@ public class GameWorld {
 		
 		block = new Block(this);
 		blockControl = new BlockController(this, mapStream, mapBase.getTileSets().getTileSet(0), block);
+		
+		pixelDistoFX = new PixelDistoFX();
 	}
 	
 	public void update(float delta) {
@@ -79,6 +88,16 @@ public class GameWorld {
 	}
 
 	public void draw() {
+		Gdx.gl.glClearColor(.5f, .8f, 1f, 0);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		if(gfx){
+			drawGFX();
+		}else{
+			drawNoGFX();
+		}
+	}
+	
+	private void drawNoGFX(){
 		camera.update();
 
 		mapStream.begin(camera);
@@ -93,10 +112,39 @@ public class GameWorld {
 		hero.draw(batch);
 		batch.end();
 	}
+	private void drawGFX(){
+		camera.update();
+
+		pixelDistoFX.beginNormal(camera);
+		pixelDistoFX.drawSphere(hero.position.x- 64 + 16, hero.position.y - 64 + 16 - 8, 128, 128);
+		pixelDistoFX.endNormal();
+		
+		pixelDistoFX.beginFrame();
+		
+		mapStream.begin(camera);
+		mapRenderer.setView(camera);
+		
+		mapRenderer.render();
+		
+		mapStream.end(camera);
+
+		pixelDistoFX.endFrame();
+		
+		pixelDistoFX.drawComposed();
+		
+		block.draw();
+		
+		
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		hero.draw(batch);
+		batch.end();
+	}
 
 	public void resize(int width, int height) {
 		camera.setToOrtho(false, width, height);
 		
+		pixelDistoFX.resize(width, height);
 	}
 
 	public void moveRight() {

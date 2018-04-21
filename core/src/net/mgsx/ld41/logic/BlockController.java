@@ -50,7 +50,7 @@ public class BlockController {
 	
 	private void resetBlock() {
 		TiledMap blockMap;
-		int debugBlock = 10;
+		int debugBlock = -1;
 		if(debugBlock >= 0){
 			blockMap = blocks.get(debugBlock);
 		}else{
