@@ -33,7 +33,7 @@ public class GameWorld {
 	private Block block;
 	private BlockController blockControl;
 	
-	private Hero hero;
+	public Hero hero;
 	
 	private boolean isOver;
 	private float overtime;
@@ -75,12 +75,14 @@ public class GameWorld {
 			return;
 		}
 		
+		pixelDistoFX.update(delta);
+		
 		mapStream.update(camera.position.x - camera.viewportWidth/2);
 		
 		heroControl.update(delta);
 		hero.update(delta);
 		
-		blockControl.update(delta);
+		blockControl.update(camera, delta);
 		block.update(delta);
 		
 		if(camera.position.x < hero.position.x)
@@ -111,21 +113,30 @@ public class GameWorld {
 		batch.begin();
 		hero.draw(batch);
 		batch.end();
+		
+		// finaliy the nextBlock
+		blockControl.draw();
 	}
 	private void drawGFX(){
 		camera.update();
 
 		pixelDistoFX.beginNormal(camera);
 		pixelDistoFX.drawSphere(hero.position.x- 64 + 16, hero.position.y - 64 + 16 - 8, 128, 128);
+		
+		// XXX waves working but need to separate water from other pixels ...
+		if(false){
+			mapStream.begin(camera);
+			pixelDistoFX.drawWaves(camera, mapStream.getMap());
+			mapStream.end(camera);
+		}
+		
 		pixelDistoFX.endNormal();
 		
 		pixelDistoFX.beginFrame();
 		
 		mapStream.begin(camera);
 		mapRenderer.setView(camera);
-		
 		mapRenderer.render();
-		
 		mapStream.end(camera);
 
 		pixelDistoFX.endFrame();
@@ -134,11 +145,13 @@ public class GameWorld {
 		
 		block.draw();
 		
-		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		hero.draw(batch);
 		batch.end();
+		
+		// finaliy the nextBlock
+		blockControl.draw();
 	}
 
 	public void resize(int width, int height) {

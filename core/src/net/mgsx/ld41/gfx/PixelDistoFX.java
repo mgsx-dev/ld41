@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,6 +12,9 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector3;
 
 import net.mgsx.ld41.assets.GameAssets;
 
@@ -19,11 +23,17 @@ public class PixelDistoFX {
 	private FrameBuffer fboNormals, fboFrame;
 	private SpriteBatch batch;
 	private ShapeRenderer renderer;
+	private OrthogonalTiledMapRenderer mapRenderer;
+	private SpriteBatch mapBatch;
+	private Vector3 waveScale = new Vector3();
+	private float time;
 	
 	public PixelDistoFX() {
 		batch = new SpriteBatch(4, GameAssets.i().distortion);
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
 		renderer = new ShapeRenderer(20, GameAssets.i().normalSphere);
+		mapBatch = new SpriteBatch();
+		mapRenderer = new OrthogonalTiledMapRenderer(null, mapBatch);
 	}
 	
 	public void resize(int width, int height) {
@@ -50,6 +60,22 @@ public class PixelDistoFX {
 		renderer.rect(x, y, w, h, 
 				Color.BLACK, Color.RED, Color.YELLOW, Color.GREEN);
 		renderer.end();
+	}
+	
+	public void update(float delta){
+		time += delta;
+	}
+	
+	public void drawWaves(OrthographicCamera camera, TiledMap map) {
+		ShaderProgram shader = GameAssets.i().normalWaves;
+		mapRenderer.setMap(map);
+		mapRenderer.setView(camera);
+		mapBatch.setShader(shader);
+		shader.begin();
+		float noiseFreq = 10f;
+		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), 100f));
+		shader.setUniformf("u_offset", waveScale.set(time * 5, time * 5, time * 20));
+		mapRenderer.render();
 	}
 	
 	public void endNormal() {
@@ -82,6 +108,5 @@ public class PixelDistoFX {
 		batch.draw(colorMap, 0, 0, 1, 1, 0, 0, 1, 1);
 		batch.end();
 	}
-
 
 }

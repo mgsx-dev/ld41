@@ -2,13 +2,16 @@ package net.mgsx.ld41.logic;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 
 import net.mgsx.ld41.LD41;
@@ -18,6 +21,10 @@ import net.mgsx.ld41.utils.TiledMapStream;
 import net.mgsx.ld41.utils.TiledMapUtils;
 
 public class BlockController {
+	
+	public static final int TID_BOMB = 161;
+	private static final int MAXY = 18;
+	
 	private TiledMapStream map;
 	private TiledMapTileLayer groundLayer, decoLayer, blockGroundLayer, blockDecoLayer, tmpLayer;
 	private Block block;
@@ -28,6 +35,10 @@ public class BlockController {
 	
 	private float cdx;
 	private TiledMapTileSet tileset;
+	
+	private TiledMap nextBlock;
+	private OrthogonalTiledMapRenderer nextRenderer;
+	private Matrix4 nextMatrix = new Matrix4();
 	
 	public BlockController(GameWorld world, TiledMapStream map, TiledMapTileSet tileset, Block block) {
 		super();
@@ -45,27 +56,52 @@ public class BlockController {
 			blocks.add(new TmxMapLoader().load("b" + i + ".tmx"));
 		}
 		
+		nextRenderer = new OrthogonalTiledMapRenderer(null);
+		
 		resetBlock();
 	}
 	
 	private void resetBlock() {
 		TiledMap blockMap;
+		
+		blockMap = nextBlock;
+		
 		int debugBlock = -1;
 		if(debugBlock >= 0){
-			blockMap = blocks.get(debugBlock);
+			nextBlock = blocks.get(debugBlock);
 		}else{
-			blockMap = blocks.get(MathUtils.random(blocks.size-1));
+			nextBlock = blocks.get(MathUtils.random(blocks.size-1));
+		}
+		// first reset (twice)
+		if(blockMap == null){
+			resetBlock();
+			return;
 		}
 		
 		block.map = TiledMapUtils.copy(blockMap);
 		blockGroundLayer = (TiledMapTileLayer)block.map.getLayers().get("ground");
 		blockDecoLayer = (TiledMapTileLayer)block.map.getLayers().get("deco");
-		block.ix = MathUtils.ceil(LD41.WIDTH / GameWorld.TILE_WIDTH)/2 + world.getOffsetX(); // TODO
+		block.ix = MathUtils.ceil(LD41.WIDTH / GameWorld.TILE_WIDTH) - 7 + world.getOffsetX(); // TODO
 		block.iy = MathUtils.ceil(LD41.HEIGHT / GameWorld.TILE_HEIGHT) - 3; // TODO
 		block.position.set(block.ix, block.iy).scl(GameWorld.TILE_WIDTH, GameWorld.TILE_HEIGHT);
 	}
 	
-	public void update(float delta)
+	public void draw(){
+		
+		if(nextBlock != null){
+			nextMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			nextMatrix.translate(10, Gdx.graphics.getHeight() - 32 * 3 - 10, 0);
+			nextMatrix.scale(.5f, .5f, .5f);
+			
+			nextRenderer.setView(nextMatrix, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			nextRenderer.setMap(nextBlock);
+			nextRenderer.getBatch().setColor(1,1,1, .8f);
+			nextRenderer.render();
+		}
+		
+	}
+	
+	public void update(Camera camera, float delta)
 	{
 		if(block.map == null) return;
 		
@@ -110,10 +146,38 @@ public class BlockController {
 		
 		// TODO check H collisions ...
 		block.ix += mx;
+		
+		
+		// compute block size
+		int bxmin = 100, bxmax = -100, bymin = -100, bymax = 100;
+		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
+			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
+				Cell blockCell = blockGroundLayer.getCell(x, y);
+				if(blockCell != null && blockCell.getTile() != null){
+					bxmin = Math.min(bxmin, x);
+					bxmax = Math.max(bxmax, x);
+					bymin = Math.min(bymin, y);
+					bymax = Math.max(bymax, y);
+				}
+			}
+		}
+		
+		
+		// check collision with screen
+		int xmin = MathUtils.ceil((camera.position.x - camera.viewportWidth/2) / GameWorld.TILE_WIDTH) - bxmin;
+		int xmax = MathUtils.floor((camera.position.x + camera.viewportWidth/2 + bxmax) / GameWorld.TILE_WIDTH) - bxmax - 1;
+		block.ix = MathUtils.clamp(block.ix, xmin, xmax);
+		
+		
+		
 		block.position.y += my * delta * GameWorld.TILE_HEIGHT * 10;
 		
 		block.position.x = block.ix * GameWorld.TILE_WIDTH;
 		block.position.y -= delta * GameWorld.TILE_HEIGHT;
+		
+		
+		
+		
 		int iy = MathUtils.floor(block.position.y / GameWorld.TILE_HEIGHT);
 		if(iy != block.iy){
 			block.iy = iy;
@@ -137,8 +201,6 @@ public class BlockController {
 		}
 	}
 
-	public static final int TID_BOMB = 161;
-	
 	private void explode() {
 		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
 			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
@@ -191,10 +253,12 @@ public class BlockController {
 
 	private void paint() 
 	{
+		int maxY = 0;
 		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
 			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
 				Cell blockCell = blockGroundLayer.getCell(x, y);
 				if(blockCell != null && blockCell.getTile() != null){
+					maxY = Math.max(maxY, y + block.iy);
 					groundLayer.setCell(x + block.ix - map.getOffsetX(), y + block.iy, blockGroundLayer.getCell(x, y));
 				}
 			}
@@ -207,6 +271,11 @@ public class BlockController {
 					decoLayer.setCell(x + block.ix - map.getOffsetX(), y + block.iy, blockCell);
 				}
 			}
+		}
+		
+		if(maxY >= MAXY){
+			world.hero.setDead();
+			world.gameOver();
 		}
 	}
 	
