@@ -20,8 +20,6 @@ public class GameWorld {
 	public static final float TILE_WIDTH = 32f;
 	public static final float TILE_HEIGHT = 32f;
 	
-	public static final int TID_HERO = 448;
-	
 	private TiledMapStream mapStream;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	OrthographicCamera camera;
@@ -31,6 +29,9 @@ public class GameWorld {
 	private BlockController blockControl;
 	
 	private Hero hero;
+	
+	private boolean isOver;
+	private float overtime;
 	
 	public GameWorld() {
 		TiledMap mapBase = new TmxMapLoader().load("map.tmx");
@@ -45,18 +46,26 @@ public class GameWorld {
 		
 		batch = new SpriteBatch();
 		
-		hero = new Hero(TiledMapUtils.findRegion(mapBase, TID_HERO));
-		GridPoint2 p = TiledMapUtils.findAndRemoveCell(mapBase, TID_HERO);
+		hero = new Hero(mapBase.getTileSets().getTileSet(0));
+		GridPoint2 p = TiledMapUtils.findAndRemoveCell(mapBase, Hero.TID_HERO);
 		hero.setGridPosition(p.x, p.y, TILE_WIDTH, TILE_HEIGHT);
 		
-		heroControl = new HeroController(mapStream, hero);
+		heroControl = new HeroController(this, mapStream, mapBase.getTileSets().getTileSet(0), hero);
 		
 		
 		block = new Block(this);
-		blockControl = new BlockController(this, mapStream, block);
+		blockControl = new BlockController(this, mapStream, mapBase.getTileSets().getTileSet(0), block);
 	}
 	
 	public void update(float delta) {
+		if(isOver){
+			overtime += delta;
+			if(overtime > 2){
+				LD41.i().gameOver();
+			}
+			return;
+		}
+		
 		mapStream.update(camera.position.x - camera.viewportWidth/2);
 		
 		heroControl.update(delta);
@@ -96,6 +105,16 @@ public class GameWorld {
 
 	public int getOffsetX() {
 		return MathUtils.floor((camera.position.x - camera.viewportWidth/2) / TILE_WIDTH);
+	}
+
+	public void gameOver() 
+	{
+		if(!isOver){
+			
+			isOver = true;
+			overtime = 0;
+		}
+		
 	}
 	
 }

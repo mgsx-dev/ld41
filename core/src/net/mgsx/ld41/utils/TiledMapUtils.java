@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -14,6 +15,9 @@ public class TiledMapUtils {
 
 	public static TextureRegion findRegion(TiledMap map, int tileID){
 		return map.getTileSets().getTile(tileID + 1).getTextureRegion();
+	}
+	public static TextureRegion findRegion(TiledMapTileSet tileset, int tileID){
+		return tileset.getTile(tileID + 1).getTextureRegion();
 	}
 
 	public static GridPoint2 findCell(TiledMap map, int tileID) 
