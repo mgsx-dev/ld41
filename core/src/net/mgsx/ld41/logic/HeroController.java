@@ -142,7 +142,7 @@ public class HeroController {
 		}
 		
 		Cell cell = map.getCell(groundLayer, hero.ix, hero.iy);
-		if(cell != null && cell.getTile() != null){
+		if(cell != null && cell.getTile() != null && !waterIDs[cell.getTile().getId()-1] && solidIDs[cell.getTile().getId()-1]){
 			hero.setDead();
 			world.gameOver();
 		}
