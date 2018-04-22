@@ -22,7 +22,7 @@ public class PixelDistoFX {
 
 	private FrameBuffer fboNormals, fboFrame;
 	private SpriteBatch batch;
-	private ShapeRenderer renderer;
+	private ShapeRenderer renderer, rendererWave;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private SpriteBatch mapBatch;
 	private Vector3 waveScale = new Vector3();
@@ -34,6 +34,7 @@ public class PixelDistoFX {
 		renderer = new ShapeRenderer(20, GameAssets.i().normalSphere);
 		mapBatch = new SpriteBatch();
 		mapRenderer = new OrthogonalTiledMapRenderer(null, mapBatch);
+		rendererWave = new ShapeRenderer(20, GameAssets.i().normalWaves);
 	}
 	
 	public void resize(int width, int height) {
@@ -51,6 +52,7 @@ public class PixelDistoFX {
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 		renderer.setProjectionMatrix(camera.combined);
+		rendererWave.setProjectionMatrix(camera.combined);
 		
 	}
 
@@ -60,6 +62,20 @@ public class PixelDistoFX {
 		renderer.rect(x, y, w, h, 
 				Color.BLACK, Color.RED, Color.YELLOW, Color.GREEN);
 		renderer.end();
+	}
+	public void drawSphereWave(float x, float y, float w, float h) 
+	{
+		rendererWave.begin(ShapeType.Filled);
+		ShaderProgram shader = GameAssets.i().normalWaves;
+		float noiseFreq = 1012f;
+		float noiseSpeed = 300f;
+		float normalZ = 0f; // XXX 100
+		shader.begin();
+		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), normalZ));
+		shader.setUniformf("u_offset", waveScale.set(time * noiseSpeed, time * noiseSpeed, time * 100000000));
+		rendererWave.rect(x, y, w, h, 
+				Color.BLACK, Color.RED, Color.YELLOW, Color.GREEN);
+		rendererWave.end();
 	}
 	
 	public void update(float delta){
@@ -72,9 +88,10 @@ public class PixelDistoFX {
 		mapRenderer.setView(camera);
 		mapBatch.setShader(shader);
 		shader.begin();
-		float noiseFreq = 10f;
+		float noiseFreq = 100f;
 		float noiseSpeed = 5f;
-		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), 100f));
+		float normalZ = .1f; // XXX 100
+		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), normalZ));
 		shader.setUniformf("u_offset", waveScale.set(time * noiseSpeed, time * noiseSpeed, time * 20));
 		mapRenderer.render();
 	}

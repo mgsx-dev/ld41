@@ -201,8 +201,8 @@ public class GameWorld {
 		//trauma = 1;
 		//traumaPosition.set(100, 100);
 		if(trauma > 0){
-			float traumaSize = 1024* trauma * (MathUtils.sin(animTime * 30) * 0.5f + 0.5f);
-			pixelDistoFX.drawSphere(traumaPosition.x - traumaSize/2, traumaPosition.y - traumaSize/2, traumaSize, traumaSize);
+			float traumaSize = 2024 * trauma * (MathUtils.sin(animTime * 60) * 0.5f + 0.5f);
+			pixelDistoFX.drawSphereWave(traumaPosition.x - traumaSize/2, traumaPosition.y - traumaSize/2, traumaSize, traumaSize);
 		}
 		
 		pixelDistoFX.endNormal();
