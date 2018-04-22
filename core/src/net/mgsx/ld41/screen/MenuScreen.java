@@ -31,12 +31,12 @@ public class MenuScreen extends StageScreen
 		
 		Table main = new Table(skin);
 		
-		labelStart = new Label("[use arrow keys to play]\nClick to start", skin);
+		labelStart = new Label("keyboard arrows to play\n \nClick to start", skin);
 		labelStart.setAlignment(Align.center);
 		labelStart.addAction(Actions.forever(Actions.sequence(Actions.alpha(.5f, 1), Actions.alpha(1))));
 		labelStart.setColor(Color.BLACK);
 		
-		main.add(labelStart).expand().top().padTop(150).row();
+		main.add(labelStart).expand().top().padTop(130).row();
 		main.setBackground(new TextureRegionDrawable(new TextureRegion(GameAssets.i().textureMenu)));
 		
 		// TODO add image
