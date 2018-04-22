@@ -51,9 +51,9 @@ public class GameAssets {
 		
 		blockTNT = new TmxMapLoader().load("b-tnt.tmx");
 		
-		loadBlockSet(1, 12);
-		loadBlockSet(2, 5);
-		loadBlockSet(3, 4);
+		loadBlockSet(1, 14);
+		loadBlockSet(2, 7);
+		loadBlockSet(3, 5);
 		loadBlockSet(4, 4);
 		loadBlockSet(5, 3);
 		
