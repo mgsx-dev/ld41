@@ -55,7 +55,7 @@ public class Hero
 		
 		// update sprite
 		sprite.setFlip(rightToleft, false);
-		sprite.setBounds(position.x, position.y, region.getRegionWidth(), region.getRegionHeight());
+		sprite.setBounds(position.x, position.y - 4, region.getRegionWidth(), region.getRegionHeight());
 	}
 	
 	public void draw(Batch batch){

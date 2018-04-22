@@ -190,7 +190,9 @@ public class GameWorld {
 		camera.update();
 
 		pixelDistoFX.beginNormal(camera);
-		pixelDistoFX.drawSphere(hero.position.x- 64 + 16, hero.position.y - 64 + 16 - 8, 128, 128);
+		float heroNormalW = 128;
+		float heroNormalH = 128;
+		pixelDistoFX.drawSphere(hero.position.x - heroNormalW/2 + 16, hero.position.y - heroNormalH/2 + 16 - 5, heroNormalW, heroNormalH);
 		
 		// XXX waves working but need to separate water from other pixels ...
 		if(false){
