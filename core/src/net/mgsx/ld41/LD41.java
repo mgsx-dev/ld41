@@ -12,7 +12,7 @@ public class LD41 extends Game {
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 	
 	public static LD41 i(){
 		return (LD41)Gdx.app.getApplicationListener();
@@ -20,6 +20,10 @@ public class LD41 extends Game {
 	
 	@Override
 	public void create () {
+//		setScreen(new GameScreen());
+//		return;
+		
+		
 		if(debug) setScreen(new GameScreen());
 		else{
 			// TODO transition
@@ -32,7 +36,8 @@ public class LD41 extends Game {
 		if(debug) setScreen(new GameScreen());
 		else{
 			// TODO transition
-			setScreen(new EndScreen());
+			GameScreen gameScreen = (GameScreen)screen;
+			setScreen(new EndScreen(gameScreen.world));
 		}
 	}
 

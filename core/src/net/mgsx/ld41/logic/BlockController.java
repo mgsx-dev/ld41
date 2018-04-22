@@ -218,6 +218,8 @@ public class BlockController {
 					paint();
 				}
 				
+				world.usedBlocks++;
+				
 				// reset block
 				resetBlock();
 				

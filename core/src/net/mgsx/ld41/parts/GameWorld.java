@@ -3,6 +3,7 @@ package net.mgsx.ld41.parts;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -50,6 +51,8 @@ public class GameWorld {
 	private PixelDistoFX pixelDistoFX;
 	
 	private float animTime;
+	public float distanceTile;
+	public int usedBlocks;
 	
 	public GameWorld() {
 		TiledMap mapBase = GameAssets.i().firstMap;
@@ -128,11 +131,34 @@ public class GameWorld {
 		
 		if(camera.position.x < hero.position.x)
 			camera.position.x = MathUtils.lerp(camera.position.x, hero.position.x, .1f);
+		
+		distanceTile = (camera.position.x - camera.viewportWidth/2) / TILE_WIDTH;
 	}
 
 	public void draw() {
 		Gdx.gl.glClearColor(.5f, .8f, 1f, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		float scrolling;
+		Texture bgTex = GameAssets.i().textureBackground;
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		scrolling = .2f * camera.position.x / camera.viewportWidth;
+		batch.draw(bgTex, 
+				camera.position.x - camera.viewportWidth / 2, 
+				camera.position.y - camera.viewportHeight / 2, 
+				bgTex.getWidth(), 
+				bgTex.getHeight()/2, 
+				scrolling, .5f, 1 + scrolling, 0);
+		scrolling = .5f * camera.position.x / camera.viewportWidth;
+		batch.draw(bgTex, 
+				camera.position.x - camera.viewportWidth / 2, 
+				camera.position.y - camera.viewportHeight / 2, 
+				bgTex.getWidth(), 
+				bgTex.getHeight()/2, 
+				scrolling, 1, 1 + scrolling, .5f);
+		batch.end();
+		
 		if(gfx){
 			drawGFX();
 		}else{

@@ -1,5 +1,6 @@
 package net.mgsx.ld41.screen;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.Align;
 
 import net.mgsx.ld41.assets.GameAssets;
 import net.mgsx.ld41.parts.GameWorld;
+import net.mgsx.ld41.utils.FormatUtils;
 import net.mgsx.ld41.utils.StageScreen;
 
 public class GameScreen extends StageScreen
@@ -18,12 +20,13 @@ public class GameScreen extends StageScreen
 	
 	public static final int CHERRY_PER_LEVEL = 3;
 	
-	private GameWorld world;
+	public GameWorld world;
 	
 	private int cherryCount;
 	private Table cherryTable;
 	private Skin skin;
 	private Label levelLabel;
+	private Label distanceLabel;
 	private Label gameOverLabel;
 	
 	private int level = 0;
@@ -45,9 +48,13 @@ public class GameScreen extends StageScreen
 		
 		levelLabel = new Label("Level 1", skin);
 		
-		main.add(levelLabel).expandX().left().padLeft(200);
-		main.add(cherryTable);
+		distanceLabel = new Label("", skin);
+		distanceLabel.setColor(1, 1, 1, .5f);
 		
+		main.add(distanceLabel).padLeft(140).width(160);
+		main.add(levelLabel).expandX().center();
+		main.add(cherryTable).width(32 * CHERRY_PER_LEVEL).right();
+		// main.debugAll();
 
 	}
 	
@@ -66,6 +73,7 @@ public class GameScreen extends StageScreen
 			stage.addActor(gameOverLabel);
 			gameOverLabel.setFillParent(true);
 			gameOverLabel.setAlignment(Align.center);
+			gameOverLabel.setColor(Color.BLACK);
 		}
 		
 		if(world.cherryCount > cherryCount){
@@ -81,11 +89,16 @@ public class GameScreen extends StageScreen
 				world.setLevel(this.level);
 			}
 			Image img = new Image(skin, "cherry");
+			img.setOrigin(Align.center);
 			cherryTable.add(img);
 			img.setScale(0);
 			
-			img.addAction(Actions.scaleTo(1, 1, 2f, Interpolation.bounceOut));
+			img.addAction(Actions.sequence(
+					Actions.scaleTo(3, 3, .3f, Interpolation.pow2Out), 
+					Actions.scaleTo(1, 1, .5f, Interpolation.bounceOut)));
 		}
+		
+		distanceLabel.setText(FormatUtils.distanceToString(world.distanceTile));
 		
 	}
 

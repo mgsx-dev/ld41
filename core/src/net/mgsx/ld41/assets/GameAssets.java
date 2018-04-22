@@ -1,6 +1,8 @@
 package net.mgsx.ld41.assets;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -21,10 +23,17 @@ public class GameAssets {
 	public TiledMap firstMap, blockTNT;
 	public Array<Array<TiledMap>> levelMaps = new Array<Array<TiledMap>>();
 	public Array<Array<TiledMap>> blockMaps = new Array<Array<TiledMap>>();
+
+	public Texture textureMenu, textureEnd, textureBackground;
 	
 	
 	public GameAssets() {
 		skin = new Skin(Gdx.files.internal("skin/skin.json"));
+		
+		textureMenu = new Texture(Gdx.files.internal("menu.png"));
+		textureEnd = new Texture(Gdx.files.internal("end.png"));
+		textureBackground = new Texture(Gdx.files.internal("background.png"));
+		textureBackground.setWrap(TextureWrap.Repeat, TextureWrap.ClampToEdge);
 		
 		normalSphere = newShader("normal-sphere");
 		normalWaves = newShader("normal-waves");
