@@ -104,10 +104,23 @@ public class HeroController {
 		
 		// look if can move forward
 		nextY = getNextY(hero.ix + dirx, hero.iy);
+		if(nextY > hero.iy){
+			int topY = getNextY(hero.ix, nextY);
+			if(topY >= nextY){
+				nextY = -1;
+			}
+		}
 		
 		// gap or wall : change direction
 		int maxJump = 4;
 		if(nextY < 0 || nextY - hero.iy > maxJump){
+			
+			Cell cell = map.getCell(groundLayer, hero.ix, hero.iy-1);
+			if(cell == null || cell.getTile() == null){
+				hero.setDead();
+				world.gameOver();
+			}
+			
 			if(flipTimeout > 0){
 				flipTimeout -= delta;
 			}else{
@@ -126,6 +139,15 @@ public class HeroController {
 				hero.makeMoveTo(hero.ix + dirx, nextY, false);
 			}
 			
+		}
+		
+		Cell cell = map.getCell(groundLayer, hero.ix, hero.iy);
+		if(cell != null && cell.getTile() != null){
+			hero.setDead();
+			world.gameOver();
+		}
+		if( hero.iy < 0){
+			hero.setDead();
 		}
 	}
 
