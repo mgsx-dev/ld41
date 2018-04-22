@@ -48,10 +48,8 @@
  <tile id="99" terrain="0,0,0,0"/>
  <tile id="100" terrain="0,0,0,"/>
  <tile id="101" terrain="0,0,,0"/>
- <tile id="102" terrain="2,2,2,2"/>
  <tile id="103" terrain="2,2,2,"/>
  <tile id="104" terrain="2,2,,2"/>
- <tile id="105" terrain="3,3,3,3"/>
  <tile id="106" terrain="3,3,3,"/>
  <tile id="107" terrain="3,3,,3"/>
  <tile id="129" terrain="1,,1,1"/>
@@ -59,10 +57,8 @@
  <tile id="131" terrain="0,0,0,0"/>
  <tile id="132" terrain="0,,0,0"/>
  <tile id="133" terrain=",0,0,0"/>
- <tile id="134" terrain="2,2,2,2"/>
  <tile id="135" terrain="2,,2,2"/>
  <tile id="136" terrain=",2,2,2"/>
- <tile id="137" terrain="3,3,3,3"/>
  <tile id="138" terrain="3,,3,3"/>
  <tile id="139" terrain=",3,3,3"/>
  <tile id="391">

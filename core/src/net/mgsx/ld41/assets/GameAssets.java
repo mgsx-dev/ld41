@@ -51,11 +51,25 @@ public class GameAssets {
 		
 		blockTNT = new TmxMapLoader().load("b-tnt.tmx");
 		
-		loadBlockMap(1, 12);
+		loadBlockSet(1, 12);
+		loadBlockSet(2, 5);
+		loadBlockSet(3, 4);
+		loadBlockSet(4, 4);
+		loadBlockSet(5, 3);
 		
 		// load other block maps
 	}
 
+	private void loadBlockSet(int level, int count) 
+	{
+		Array<TiledMap> maps = new Array<TiledMap>();
+		for(int i=1 ; i<=count ; i++){
+			maps.add(new TmxMapLoader().load("b" + level + "-" + i + ".tmx"));
+		}
+		blockMaps.add(maps);
+	}
+	
+	// old version
 	private void loadBlockMap(int level, int count) 
 	{
 		Array<TiledMap> maps = new Array<TiledMap>();
