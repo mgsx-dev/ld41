@@ -76,7 +76,7 @@ public class BlockController {
 		// get random block from block set or TNT
 		tntCountDown--;
 		if(tntCountDown <= 0){
-			tntCountDown = TNT_FREQUENCY;
+			tntCountDown = MathUtils.random(2, 5); // XXX TNT_FREQUENCY ;
 			nextBlock = GameAssets.i().blockTNT;
 		}else {
 			nextBlock = blocks.get(MathUtils.random(blocks.size-1));
