@@ -70,7 +70,9 @@ public class BlockController {
 		
 		// get random block set from current level
 		int levelMax = Math.min(world.getLevel(), GameAssets.i().blockMaps.size-1);
-		int level = MathUtils.random(levelMax);
+		// int level = MathUtils.random(levelMax);
+		// XXX random current level or first level
+		int level = MathUtils.randomBoolean(.5f) ? 0 : levelMax;
 		Array<TiledMap> blocks = GameAssets.i().blockMaps.get(level);
 		
 		// get random block from block set or TNT
