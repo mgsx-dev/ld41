@@ -164,12 +164,11 @@ public class BlockController {
 		}
 		
 		if(rotate != 0){
-			rotateBlock();
+			rotateBlockBack();
+			if(collide()){
+				rotateBlock();
+			}
 		}
-		
-		// TODO check H collisions ...
-		block.ix += mx;
-		
 		
 		// compute block size
 		int bxmin = 100, bxmax = -100, bymin = -100, bymax = 100;
@@ -185,11 +184,25 @@ public class BlockController {
 			}
 		}
 		
+		final int pix = block.ix;
 		
 		// check collision with screen
 		int xmin = MathUtils.ceil((camera.position.x - camera.viewportWidth/2) / GameWorld.TILE_WIDTH) - bxmin;
 		int xmax = MathUtils.floor((camera.position.x + camera.viewportWidth/2 + bxmax) / GameWorld.TILE_WIDTH) - bxmax - 1;
-		block.ix = MathUtils.clamp(block.ix, xmin, xmax);
+		
+		int ix = MathUtils.clamp(block.ix + mx, xmin, xmax);
+		
+		// check H collisions ...
+		if(block.ix != ix){
+			block.ix = ix;
+			
+			// limite collision on right and left
+			if(collide()){
+				block.ix = pix;
+			}
+			
+			
+		}
 		
 		
 		
@@ -268,6 +281,26 @@ public class BlockController {
 			}
 		}
 	}
+	private void rotateBlockBack() 
+	{
+		for(MapLayer layer : block.map.getLayers()){
+			if(layer instanceof TiledMapTileLayer){
+				TiledMapTileLayer tileLayer = (TiledMapTileLayer)layer;
+				TiledMapUtils.copy(tmpLayer, tileLayer);
+				for(int y=0 ; y<tileLayer.getHeight() ; y++){
+					for(int x=0 ; x<tileLayer.getWidth() ; x++){
+						int tx = tileLayer.getHeight() - 1 - y;
+						int ty = x;
+						Cell srcCell = tmpLayer.getCell(x, y);
+						tileLayer.setCell(tx, ty, srcCell);
+						if(srcCell != null)
+							srcCell.setRotation((srcCell.getRotation() + 1)%4);
+					}
+				}
+			}
+		}
+	}
+
 
 	private void explode() 
 	{
