@@ -22,7 +22,7 @@ public class Hero
 	public boolean rightToleft;
 	private TextureRegion region;
 	private boolean moving, eating;
-	private float moveTime, eatTime;
+	public float moveTime, eatTime;
 	private TextureRegion regionEat, regionDead;
 	private boolean waterMode;
 	private boolean dying;

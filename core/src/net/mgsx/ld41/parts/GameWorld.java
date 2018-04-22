@@ -129,8 +129,10 @@ public class GameWorld {
 		blockControl.update(camera, delta);
 		block.update(delta);
 		
-		if(camera.position.x < hero.position.x)
-			camera.position.x = MathUtils.lerp(camera.position.x, hero.position.x, .1f);
+		float lookingForward = 100;
+		float focusX = (hero.ix + hero.moveTime) * TILE_WIDTH + lookingForward;
+		if(camera.position.x < focusX)
+			camera.position.x = MathUtils.lerp(camera.position.x, focusX, 0.0001f * Math.abs(camera.position.x - focusX));
 		
 		distanceTile = (camera.position.x - camera.viewportWidth/2) / TILE_WIDTH;
 	}
