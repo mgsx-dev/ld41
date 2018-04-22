@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
@@ -17,13 +18,20 @@ import com.badlogic.gdx.utils.Array;
 import net.mgsx.ld41.LD41;
 import net.mgsx.ld41.parts.Block;
 import net.mgsx.ld41.parts.GameWorld;
+import net.mgsx.ld41.parts.StaticBlock;
 import net.mgsx.ld41.utils.TiledMapStream;
 import net.mgsx.ld41.utils.TiledMapUtils;
 
 public class BlockController {
 	
+	public static final int NB_BLOCKS = 13;
+	public static final int TNT_BLOCK_INDEX = 12;
+	
 	public static final int TID_BOMB = 161;
 	private static final int MAXY = 18;
+	
+	private Array<StaticBlock> staticBlocks = new Array<StaticBlock>();
+	private boolean nextTNT;
 	
 	private TiledMapStream map;
 	private TiledMapTileLayer groundLayer, decoLayer, blockGroundLayer, blockDecoLayer, tmpLayer;
@@ -52,7 +60,7 @@ public class BlockController {
 		tmpLayer = new TiledMapTileLayer(20, 20, 32, 32); // don't care about tile size ... XXX 20 is enough
 		
 		// reset block
-		for(int i=1 ; i<=12 ; i++){
+		for(int i=1 ; i<=NB_BLOCKS ; i++){
 			blocks.add(new TmxMapLoader().load("b" + i + ".tmx"));
 		}
 		
@@ -61,23 +69,40 @@ public class BlockController {
 		resetBlock();
 	}
 	
+	private static int TNT_FREQUENCY = 10;
+	private int tntCountDown = TNT_FREQUENCY;
+	
 	private void resetBlock() {
 		TiledMap blockMap;
 		
+		boolean currentTNT = nextTNT;
 		blockMap = nextBlock;
 		
+		int blockIndex;
 		int debugBlock = -1;
 		if(debugBlock >= 0){
-			nextBlock = blocks.get(debugBlock);
+			blockIndex = debugBlock;
 		}else{
-			nextBlock = blocks.get(MathUtils.random(blocks.size-1));
+			tntCountDown--;
+			if(tntCountDown <= 0){
+				blockIndex = TNT_BLOCK_INDEX;
+			}else 
+				blockIndex = MathUtils.random(blocks.size-1);
 		}
+		nextBlock = blocks.get(blockIndex);
+		nextTNT = blockIndex == TNT_BLOCK_INDEX;
+		
+		if(nextTNT){
+			tntCountDown = TNT_FREQUENCY;
+		}
+		
 		// first reset (twice)
 		if(blockMap == null){
 			resetBlock();
 			return;
 		}
 		
+		block.isTNT = currentTNT;
 		block.map = TiledMapUtils.copy(blockMap);
 		blockGroundLayer = (TiledMapTileLayer)block.map.getLayers().get("ground");
 		blockDecoLayer = (TiledMapTileLayer)block.map.getLayers().get("deco");
@@ -104,6 +129,17 @@ public class BlockController {
 	public void update(Camera camera, float delta)
 	{
 		if(block.map == null) return;
+		
+		// remove out screen static blocks
+		int xLeft = MathUtils.ceil((camera.position.x - camera.viewportWidth/2) / GameWorld.TILE_WIDTH);
+		for(int i=0 ; i<staticBlocks.size ; ){
+			StaticBlock sb = staticBlocks.get(i);
+			if(sb.xMax < xLeft){
+				staticBlocks.removeIndex(i);
+			}else{
+				i++;
+			}
+		}
 		
 		float continuousSpeed = 10;
 		
@@ -187,9 +223,13 @@ public class BlockController {
 			if(collide()){
 				block.iy++;
 				
-				paint();
-				
-				explode();
+				if(block.isTNT){
+					explode();
+					// add some camera FX and GFX ...
+					world.addTrauma((block.ix + 3) * GameWorld.TILE_WIDTH, (block.iy + 3) * GameWorld.TILE_HEIGHT);
+				}else{
+					paint();
+				}
 				
 				// reset block
 				resetBlock();
@@ -197,17 +237,6 @@ public class BlockController {
 				// TODO if collide after reset, what to do : loose
 				
 				world.moveRight();
-			}
-		}
-	}
-
-	private void explode() {
-		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
-			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
-				Cell blockCell = blockDecoLayer.getCell(x, y);
-				if(blockCell != null && blockCell.getTile() != null && blockCell.getTile().getId() == TID_BOMB){
-					explodeMap(x + block.ix - map.getOffsetX(), y + block.iy);
-				}
 			}
 		}
 	}
@@ -251,14 +280,66 @@ public class BlockController {
 		}
 	}
 
+	private void explode() 
+	{
+		// find all static blocks around TNT
+		Array<StaticBlock> blockToExplode = new Array<StaticBlock>();
+		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
+			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
+				Cell blockCell = blockGroundLayer.getCell(x, y);
+				if(blockCell != null && blockCell.getTile() != null){
+					int tntX = x + block.ix;
+					int tntY = y + block.iy;
+					for(int i=0 ; i<staticBlocks.size ; ){
+						StaticBlock sBlock = staticBlocks.get(i);
+						if(isStaticBlockImpacted(sBlock, tntX, tntY)){
+							staticBlocks.removeIndex(i);
+							blockToExplode.add(sBlock);
+						}else{
+							i++;
+						}
+					}
+					
+				}
+			}
+		}
+		
+		// remove static block from map
+		for(StaticBlock sBlock : blockToExplode){
+			for(GridPoint2 point : sBlock.groundTiles){
+				groundLayer.setCell(point.x - map.getOffsetX(), point.y, null);
+			}
+			for(GridPoint2 point : sBlock.decoTiles){
+				decoLayer.setCell(point.x - map.getOffsetX(), point.y, null);
+			}
+		}
+		
+		
+	}
+	
+	private boolean isStaticBlockImpacted(StaticBlock sBlock, int tntX, int tntY){
+		for(GridPoint2 point : sBlock.groundTiles){
+			if(Math.abs(point.x - tntX) < 2 && Math.abs(point.y - tntY) < 2){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private void paint() 
 	{
+		StaticBlock sBlock = new StaticBlock();
+		
 		int maxY = 0;
 		for(int y=0 ; y<blockGroundLayer.getHeight() ; y++){
 			for(int x=0 ; x<blockGroundLayer.getWidth() ; x++){
 				Cell blockCell = blockGroundLayer.getCell(x, y);
 				if(blockCell != null && blockCell.getTile() != null){
 					maxY = Math.max(maxY, y + block.iy);
+					GridPoint2 point = new GridPoint2(x + block.ix, y + block.iy);
+					if(sBlock.groundTiles.size > 0) sBlock.xMax = Math.max(sBlock.xMax, point.x);
+					else sBlock.xMax = point.x;
+					sBlock.groundTiles.add(point);
 					groundLayer.setCell(x + block.ix - map.getOffsetX(), y + block.iy, blockGroundLayer.getCell(x, y));
 				}
 			}
@@ -268,10 +349,14 @@ public class BlockController {
 			for(int x=0 ; x<blockDecoLayer.getWidth() ; x++){
 				Cell blockCell = blockDecoLayer.getCell(x, y);
 				if(blockCell != null && blockCell.getTile() != null){
+					GridPoint2 point = new GridPoint2(x + block.ix, y + block.iy);
+					sBlock.decoTiles.add(point);
 					decoLayer.setCell(x + block.ix - map.getOffsetX(), y + block.iy, blockCell);
 				}
 			}
 		}
+		
+		staticBlocks.add(sBlock);
 		
 		if(maxY >= MAXY){
 			world.hero.setDead();

@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 import net.mgsx.ld41.LD41;
 import net.mgsx.ld41.gfx.PixelDistoFX;
@@ -33,12 +34,17 @@ public class GameWorld {
 	private Block block;
 	private BlockController blockControl;
 	
+	private float trauma;
+	private Vector2 traumaPosition = new Vector2();
+	
 	public Hero hero;
 	
 	private boolean isOver;
 	private float overtime;
 	
 	private PixelDistoFX pixelDistoFX;
+	
+	private float animTime;
 	
 	public GameWorld() {
 		TiledMap mapBase = new TmxMapLoader().load("map.tmx");
@@ -74,6 +80,10 @@ public class GameWorld {
 			}
 			return;
 		}
+		
+		animTime += delta;
+		
+		trauma = Math.max(0, trauma - delta);
 		
 		pixelDistoFX.update(delta);
 		
@@ -130,6 +140,14 @@ public class GameWorld {
 			mapStream.end(camera);
 		}
 		
+		// XXX
+		//trauma = 1;
+		//traumaPosition.set(100, 100);
+		if(trauma > 0){
+			float traumaSize = 1024* trauma * (MathUtils.sin(animTime * 30) * 0.5f + 0.5f);
+			pixelDistoFX.drawSphere(traumaPosition.x - traumaSize/2, traumaPosition.y - traumaSize/2, traumaSize, traumaSize);
+		}
+		
 		pixelDistoFX.endNormal();
 		
 		pixelDistoFX.beginFrame();
@@ -176,6 +194,11 @@ public class GameWorld {
 			overtime = 0;
 		}
 		
+	}
+
+	public void addTrauma(float x, float y) {
+		trauma = 1;
+		traumaPosition.set(x,y);
 	}
 	
 }

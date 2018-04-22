@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Block {
 
 	public int ix, iy;
+	public boolean isTNT;
 	public Vector2 position = new Vector2();
 	public TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;

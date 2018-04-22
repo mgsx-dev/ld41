@@ -78,6 +78,19 @@ public class PixelDistoFX {
 		mapRenderer.render();
 	}
 	
+//	public void drawWavesCircle(Camera camera, float x, float y, float r) 
+//	{
+//		ShaderProgram shader = GameAssets.i().normalWaves;
+//		mapBatch.setProjectionMatrix(camera.combined);
+//		mapBatch.setShader(shader);
+//		mapBatch.begin();
+//		float noiseFreq = 10f;
+//		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), 100f));
+//		shader.setUniformf("u_offset", waveScale.set(time * 5, time * 5, time * 20));
+//		mapBatch.draw(GameAssets.i().circleTexture, x + r/2, y + r/2, r, r);
+//		mapBatch.end();
+//	}
+	
 	public void endNormal() {
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		fboNormals.end();

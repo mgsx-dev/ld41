@@ -24,6 +24,18 @@
      id="defs4">
     <linearGradient
        inkscape:collect="always"
+       id="linearGradient5902">
+      <stop
+         style="stop-color:#e80101;stop-opacity:1"
+         offset="0"
+         id="stop5904" />
+      <stop
+         style="stop-color:#461406;stop-opacity:0.7647059"
+         offset="1"
+         id="stop5906" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
        id="linearGradient4413">
       <stop
          style="stop-color:#060402;stop-opacity:1;"
@@ -49,6 +61,17 @@
        r="44"
        gradientUnits="userSpaceOnUse"
        gradientTransform="translate(-196,-32.362163)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5902"
+       id="linearGradient5908"
+       x1="4"
+       y1="396.36215"
+       x2="8"
+       y2="396.36215"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="reflect"
+       gradientTransform="matrix(2,0,0,1.9999986,0,-380.36161)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -57,9 +80,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="8"
-     inkscape:cx="42.848985"
-     inkscape:cy="825.84104"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="42.249563"
+     inkscape:cy="639.34012"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -70,7 +93,7 @@
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:snap-global="false">
+     inkscape:snap-global="true">
     <inkscape:grid
        type="xygrid"
        id="grid4136"
@@ -1319,5 +1342,31 @@
        cy="529.34747"
        rx="0.8477338"
        ry="1.0626575" />
+    <rect
+       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:url(#linearGradient5908);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99945343px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       id="rect5896"
+       width="64"
+       height="64"
+       x="0"
+       y="380.36215"
+       rx="0"
+       ry="1.7800769e-05" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:33.16714096px;line-height:125%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="10.72203"
+       y="336.02621"
+       id="text5898"
+       sodipodi:linespacing="125%"
+       transform="scale(0.78510476,1.2737154)"><tspan
+         sodipodi:role="line"
+         id="tspan5900"
+         x="10.72203"
+         y="336.02621">TNT</tspan></text>
+    <path
+       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#7a4a1e;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99945343px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="m 0,380.36217 0,63.99996 64,0 0,-63.99996 -64,0 z m 4,4 56,0 0,55.99996 -56,0 0,-55.99996 z"
+       id="rect5910"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
