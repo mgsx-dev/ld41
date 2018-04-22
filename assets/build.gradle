@@ -30,7 +30,7 @@ assetsPrepareTasks << gdxHieroExport("src/skin/default.hiero", "$buildDir/skin")
 
 assetsPrepareTasks << gdxRawCopy("src/skin", "$buildDir/skin")
 
-// assetsPrepareTasks << inkscapeExport("src/skin/panel.9.svg", "$buildDir/skin")
+assetsPrepareTasks << inkscapeExport("src/skin/cherry.svg", "$buildDir/skin")
 // assetsPrepareTasks << inkscapeExport("src/skin/bt-up.9.svg", "$buildDir/skin")
 // assetsPrepareTasks << inkscapeExport("src/skin/heart.svg", "$buildDir/skin")
 

@@ -14,9 +14,11 @@ public class TiledMapStream {
 	private int sourceOffsetX;
 	private int fillX;
 	private int sizeX, sizeY;
+	private boolean cloneMode;
 	
-	public TiledMapStream(TiledMap mapBase, int columns) 
+	public TiledMapStream(TiledMap mapBase, int columns, boolean cloneMode) 
 	{
+		this.cloneMode = cloneMode;
 		map = new TiledMap();
 		sizeX = columns;
 		sizeY = mapBase.getProperties().get("height", Integer.class);
@@ -98,7 +100,13 @@ public class TiledMapStream {
 				TiledMapTileLayer sourceLayer = (TiledMapTileLayer)sourceMap.getLayers().get(layer.getName());
 				
 				for(int iy=0 ; iy<sizeY ; iy++){
-					streamLayer.setCell(dstX, iy, sourceLayer.getCell(srcX, iy));
+					Cell srcCell;
+					if(cloneMode){
+						srcCell = copyCell(sourceLayer.getCell(srcX, iy));
+					}else{
+						srcCell = sourceLayer.getCell(srcX, iy);
+					}
+					streamLayer.setCell(dstX, iy, srcCell);
 				}
 			}
 			
@@ -106,6 +114,19 @@ public class TiledMapStream {
 			
 			fillX++;
 		}
+	}
+
+	private Cell copyCell(Cell cell) 
+	{
+		Cell clone = null;
+		if(cell != null){
+			clone = new Cell();
+			clone.setFlipHorizontally(cell.getFlipHorizontally());
+			clone.setFlipVertically(cell.getFlipVertically());
+			clone.setRotation(cell.getRotation());
+			clone.setTile(cell.getTile());
+		}
+		return clone;
 	}
 
 	public TiledMapTileLayer getTileLayer(String name) {
@@ -135,5 +156,9 @@ public class TiledMapStream {
 
 	public int getWidth() {
 		return sizeX;
+	}
+
+	public TiledMapLink currentMap() {
+		return head;
 	}
 }

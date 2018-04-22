@@ -8,7 +8,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -16,6 +15,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 
 import net.mgsx.ld41.LD41;
+import net.mgsx.ld41.assets.GameAssets;
 import net.mgsx.ld41.parts.Block;
 import net.mgsx.ld41.parts.GameWorld;
 import net.mgsx.ld41.parts.StaticBlock;
@@ -24,22 +24,20 @@ import net.mgsx.ld41.utils.TiledMapUtils;
 
 public class BlockController {
 	
-	public static final int NB_BLOCKS = 13;
-	public static final int TNT_BLOCK_INDEX = 12;
-	
-	public static final int TID_BOMB = 161;
 	private static final int MAXY = 18;
 	
+	private static int TNT_FREQUENCY = 5;
+	
+	
+	private int tntCountDown = TNT_FREQUENCY;
+
 	private Array<StaticBlock> staticBlocks = new Array<StaticBlock>();
-	private boolean nextTNT;
 	
 	private TiledMapStream map;
 	private TiledMapTileLayer groundLayer, decoLayer, blockGroundLayer, blockDecoLayer, tmpLayer;
 	private Block block;
 	
 	private GameWorld world;
-	
-	private Array<TiledMap> blocks = new Array<TiledMap>();
 	
 	private float cdx;
 	private TiledMapTileSet tileset;
@@ -59,41 +57,29 @@ public class BlockController {
 		
 		tmpLayer = new TiledMapTileLayer(20, 20, 32, 32); // don't care about tile size ... XXX 20 is enough
 		
-		// reset block
-		for(int i=1 ; i<=NB_BLOCKS ; i++){
-			blocks.add(new TmxMapLoader().load("b" + i + ".tmx"));
-		}
-		
 		nextRenderer = new OrthogonalTiledMapRenderer(null);
 		
 		resetBlock();
 	}
 	
-	private static int TNT_FREQUENCY = 10;
-	private int tntCountDown = TNT_FREQUENCY;
-	
-	private void resetBlock() {
+	private void resetBlock() 
+	{
 		TiledMap blockMap;
 		
-		boolean currentTNT = nextTNT;
 		blockMap = nextBlock;
 		
-		int blockIndex;
-		int debugBlock = -1;
-		if(debugBlock >= 0){
-			blockIndex = debugBlock;
-		}else{
-			tntCountDown--;
-			if(tntCountDown <= 0){
-				blockIndex = TNT_BLOCK_INDEX;
-			}else 
-				blockIndex = MathUtils.random(blocks.size-1);
-		}
-		nextBlock = blocks.get(blockIndex);
-		nextTNT = blockIndex == TNT_BLOCK_INDEX;
+		// get random block set from current level
+		int levelMax = Math.min(world.getLevel(), GameAssets.i().blockMaps.size-1);
+		int level = MathUtils.random(levelMax);
+		Array<TiledMap> blocks = GameAssets.i().blockMaps.get(level);
 		
-		if(nextTNT){
+		// get random block from block set or TNT
+		tntCountDown--;
+		if(tntCountDown <= 0){
 			tntCountDown = TNT_FREQUENCY;
+			nextBlock = GameAssets.i().blockTNT;
+		}else {
+			nextBlock = blocks.get(MathUtils.random(blocks.size-1));
 		}
 		
 		// first reset (twice)
@@ -102,13 +88,14 @@ public class BlockController {
 			return;
 		}
 		
-		block.isTNT = currentTNT;
+		block.isTNT = blockMap == GameAssets.i().blockTNT;
 		block.map = TiledMapUtils.copy(blockMap);
 		blockGroundLayer = (TiledMapTileLayer)block.map.getLayers().get("ground");
 		blockDecoLayer = (TiledMapTileLayer)block.map.getLayers().get("deco");
 		block.ix = MathUtils.ceil(LD41.WIDTH / GameWorld.TILE_WIDTH) - 7 + world.getOffsetX(); // TODO
 		block.iy = MathUtils.ceil(LD41.HEIGHT / GameWorld.TILE_HEIGHT) - 3; // TODO
 		block.position.set(block.ix, block.iy).scl(GameWorld.TILE_WIDTH, GameWorld.TILE_HEIGHT);
+		
 	}
 	
 	public void draw(){

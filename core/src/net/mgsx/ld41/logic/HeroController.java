@@ -119,6 +119,7 @@ public class HeroController {
 			Cell decoCell = map.getCell(decoLayer, hero.ix, hero.iy);
 			if(decoCell != null && decoCell.getTile() != null && decoCell.getTile().getId() == TID_CHERRY){
 				hero.eat();
+				world.cherryCount++;
 				decoCell.setTile(tileset.getTile(TID_CHERRY + 1));
 			}
 			else{

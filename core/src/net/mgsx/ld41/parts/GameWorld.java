@@ -5,22 +5,23 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 import net.mgsx.ld41.LD41;
+import net.mgsx.ld41.assets.GameAssets;
 import net.mgsx.ld41.gfx.PixelDistoFX;
 import net.mgsx.ld41.logic.BlockController;
 import net.mgsx.ld41.logic.HeroController;
 import net.mgsx.ld41.utils.TiledMapLink;
 import net.mgsx.ld41.utils.TiledMapStream;
-import net.mgsx.ld41.utils.TiledMapUtils;
 
 public class GameWorld {
 
+	public static final int HERO_START_X = 3;
+	public static final int HERO_START_Y = 2;
+	
 	public static final float TILE_WIDTH = 32f;
 	public static final float TILE_HEIGHT = 32f;
 	
@@ -34,12 +35,16 @@ public class GameWorld {
 	private Block block;
 	private BlockController blockControl;
 	
+	private int level;
+	
+	public int cherryCount;
+	
 	private float trauma;
 	private Vector2 traumaPosition = new Vector2();
 	
 	public Hero hero;
 	
-	private boolean isOver;
+	public boolean isOver;
 	private float overtime;
 	
 	private PixelDistoFX pixelDistoFX;
@@ -47,11 +52,10 @@ public class GameWorld {
 	private float animTime;
 	
 	public GameWorld() {
-		TiledMap mapBase = new TmxMapLoader().load("map.tmx");
-		mapStream = new TiledMapStream(mapBase, MathUtils.ceil(LD41.WIDTH / TILE_WIDTH) + 1);
+		TiledMap mapBase = GameAssets.i().firstMap;
+		mapStream = new TiledMapStream(mapBase, MathUtils.ceil(LD41.WIDTH / TILE_WIDTH) + 1, true);
 		
-		TiledMapLink link = mapStream.appendMap(mapBase);
-		link.nextMap = link;
+		createLinkedMaps(0);
 		
 		mapRenderer = new OrthogonalTiledMapRenderer(mapStream.getMap());
 		
@@ -60,8 +64,8 @@ public class GameWorld {
 		batch = new SpriteBatch();
 		
 		hero = new Hero(mapBase.getTileSets().getTileSet(0));
-		GridPoint2 p = TiledMapUtils.findAndRemoveCell(mapBase, Hero.TID_HERO);
-		hero.setGridPosition(p.x, p.y, TILE_WIDTH, TILE_HEIGHT);
+		
+		hero.setGridPosition(HERO_START_X, HERO_START_Y, TILE_WIDTH, TILE_HEIGHT);
 		
 		heroControl = new HeroController(this, mapStream, mapBase.getTileSets().getTileSet(0), hero);
 		
@@ -70,6 +74,33 @@ public class GameWorld {
 		blockControl = new BlockController(this, mapStream, mapBase.getTileSets().getTileSet(0), block);
 		
 		pixelDistoFX = new PixelDistoFX();
+	}
+	
+	private void createLinkedMaps(int level){
+		TiledMapLink previousMap = null;
+		if(mapStream.currentMap() == null){
+			previousMap = mapStream.appendMap(GameAssets.i().firstMap);
+		}else{
+			previousMap = mapStream.currentMap();
+		}
+		
+		// debug
+		if(level < 0){
+			previousMap.nextMap = previousMap;
+			return;
+		}
+		
+		if(level >= GameAssets.i().levelMaps.size) return;
+		
+		TiledMapLink first = null, last = null;
+		for(TiledMap map : GameAssets.i().levelMaps.get(level)){
+			TiledMapLink next = mapStream.appendMap(map);
+			if(first == null) first = next;
+			previousMap.nextMap = next;
+			next.nextMap = previousMap;
+			last = next;
+		}
+		last.nextMap = first;
 	}
 	
 	public void update(float delta) {
@@ -199,6 +230,16 @@ public class GameWorld {
 	public void addTrauma(float x, float y) {
 		trauma = 1;
 		traumaPosition.set(x,y);
+	}
+
+	public void setLevel(int level) 
+	{
+		this.level = level;
+		createLinkedMaps(level);
+	}
+
+	public int getLevel() {
+		return level;
 	}
 	
 }
