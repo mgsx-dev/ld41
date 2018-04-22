@@ -73,8 +73,9 @@ public class PixelDistoFX {
 		mapBatch.setShader(shader);
 		shader.begin();
 		float noiseFreq = 10f;
+		float noiseSpeed = 5f;
 		shader.setUniformf("u_scale", waveScale.set(noiseFreq / Gdx.graphics.getWidth(), noiseFreq / Gdx.graphics.getHeight(), 100f));
-		shader.setUniformf("u_offset", waveScale.set(time * 5, time * 5, time * 20));
+		shader.setUniformf("u_offset", waveScale.set(time * noiseSpeed, time * noiseSpeed, time * 20));
 		mapRenderer.render();
 	}
 	
