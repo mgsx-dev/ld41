@@ -8,6 +8,7 @@ A game made for the Ludum Dare 41 comptetition (compo mode - 48h)
 [Play on itch.io](https://mgsx.itch.io/unwinged-platzzle)
 
 ![Unwinged Platzzle](artwork/title.png)
+![Unwinged Platzzle](artwork/level3.png)
 
 ## Tools and framework
 
