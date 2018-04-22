@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 
 import net.mgsx.ld41.LD41;
 import net.mgsx.ld41.assets.GameAssets;
@@ -30,8 +31,8 @@ public class MenuScreen extends StageScreen
 		
 		Table main = new Table(skin);
 		
-		labelStart = new Label("Press any key to start", skin);
-		
+		labelStart = new Label("[use arrow keys to play]\nClick to start", skin);
+		labelStart.setAlignment(Align.center);
 		labelStart.addAction(Actions.forever(Actions.sequence(Actions.alpha(.5f, 1), Actions.alpha(1))));
 		labelStart.setColor(Color.BLACK);
 		
@@ -47,7 +48,8 @@ public class MenuScreen extends StageScreen
 	
 	@Override
 	public void render(float delta) {
-		if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ||
+				Gdx.input.isTouched()){
 			LD41.i().gameStart();
 		}
 		Gdx.gl.glClearColor(.5f, .8f, 1f, 0);
